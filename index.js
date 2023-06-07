@@ -11,10 +11,10 @@ const obj = {
         { name: "Jack", age: 10 },
         new Map([
             [
-                10,
+                13,
                 {
                     name: "Alice",
-                    age: 10,
+                    age: 12,
                     pet: { name: "Doggo", age: 42 },
                 },
             ],
@@ -24,31 +24,29 @@ const obj = {
     fruits: new Set([{ name: "Hannah", age: 30 }]),
 }
 
-function flatDelete(oldObject, newObject, excludedKey) {
+function del(oldObject, excludedKeys) {
+    const newObject = {}
+
     for (const key in oldObject) {
-        if (key === excludedKey) {
-            if (typeof oldObject[key] === "object" && oldObject[key] !== null) {
-                newObject[key] = {}
-                flatDelete(oldObject[key], newObject[key], excludedKey)
+        if (oldObject[key] instanceof Object && oldObject[key] !== null) {
+            if (oldObject[key] instanceof Map && oldObject[key] !== null) {
+                oldObject[key].forEach((v, k) => {
+                    console.log(k + ":", v)
+                    // newObject[k] = del(oldObject[k], excludedKeys)
+                })
             }
-        } else {
+            newObject[key] = del(oldObject[key], excludedKeys)
+        } else if (!excludedKeys.includes(key)) {
             newObject[key] = oldObject[key]
         }
     }
-
     return newObject
 }
 
-// Copy all to new obj without 'age' key
-// Create new object without 'age' key
-function omitDeep(oldObject, excludedKey) {
-    // Return object where key !== 'age'
-    const newObject = {}
-
-    flatDelete(oldObject, newObject, excludedKey)
-    return newObject
+function omitDeep(oldObject, excludedKeys) {
+    return del(oldObject, excludedKeys)
 }
 
-const result = omitDeep(obj, "age")
+const result = omitDeep(obj, ["age"])
 
 console.log(result)
