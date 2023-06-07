@@ -25,28 +25,80 @@ const obj = {
 }
 
 function del(oldObject, excludedKeys) {
-    const newObject = {}
-
-    for (const key in oldObject) {
-        if (oldObject[key] instanceof Object && oldObject[key] !== null) {
-            if (oldObject[key] instanceof Map && oldObject[key] !== null) {
-                oldObject[key].forEach((v, k) => {
-                    console.log(k + ":", v)
-                    // newObject[k] = del(oldObject[k], excludedKeys)
-                })
+    if (oldObject instanceof Map) {
+        const newMap = new Map()
+        oldObject.forEach((value, key) => {
+            if (!excludedKeys.includes(key)) {
+                newMap[key] = del(value, excludedKeys)
             }
-            newObject[key] = del(oldObject[key], excludedKeys)
-        } else if (!excludedKeys.includes(key)) {
-            newObject[key] = oldObject[key]
-        }
+        })
+        return newMap
     }
-    return newObject
+
+    if (oldObject instanceof Set) {
+        const newSet = new Set()
+        oldObject.forEach((value) => {
+            if (!excludedKeys.includes(value)) {
+                newSet.add(del(value, excludedKeys))
+            }
+        })
+        return newSet
+    }
+
+    if (Array.isArray(oldObject)) {
+        return oldObject.map((item) => del(item, excludedKeys))
+    }
+
+    if (typeof oldObject === "object" && oldObject !== null) {
+        const newObject = {}
+        for (const key in oldObject) {
+            if (!excludedKeys.includes(key)) {
+                newObject[key] = del(oldObject[key], excludedKeys)
+            }
+        }
+
+        return newObject
+    }
+    return oldObject
 }
 
 function omitDeep(oldObject, excludedKeys) {
     return del(oldObject, excludedKeys)
 }
 
+function logStack(fn) {
+    let no = 0
+    const noToCount = new Map()
+
+    return function () {
+        const count = noToCount.get(no) ?? 0
+
+        console.log(`LVL: ${no}.${count} GOT --->`)
+        console.dir(arguments)
+        delimit()
+
+        noToCount.set(no, count + 1)
+        ++no
+
+        const r = fn(...arguments)
+        --no
+
+        console.log(`LVL: ${no}.${count} RETURN <---`)
+        console.dir(r)
+        delimit()
+
+        return r
+    }
+
+    function delimit() {
+        console.log()
+        console.log("----------------------------------")
+        console.log()
+    }
+}
+
+del = logStack(del)
+
 const result = omitDeep(obj, ["age"])
 
-console.log(result)
+console.dir(result, { depth: null })
