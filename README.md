@@ -1,3 +1,43 @@
+# Example Usage
+
+```js
+const obj = {
+    name: "Bob",
+    age: 42,
+
+    contactInfo: {
+        email: "foo@gmail.com",
+        age: 42,
+    },
+
+    pets: [
+        { name: "Jack", age: 10 },
+        new Map([
+            [
+                13,
+                {
+                    name: "Alice",
+                    age: 12,
+                    pet: { name: "Doggo", age: 42 },
+                },
+            ],
+        ]),
+    ],
+
+    fruits: new Set([{ name: "Hannah", age: 30 }]),
+}
+
+// Wrap the `del` function with `logStack` for stack tracing
+del = logStack(del)
+
+// Remove the "age" key from the object and its nested properties
+const result = omitDeep(obj, ["age"])
+
+console.dir(result, { depth: null })
+```
+
+### The output will display the modified object with the specified keys removed, and the stack trace log showing the function calls and their arguments.
+
 # del function
 
 The `del` function is a recursive utility function used in the `omitDeep` function to remove specified keys from an object, while preserving the object's structure.
@@ -82,43 +122,3 @@ The function returns a wrapper function that logs the stack trace before and aft
   </li>
   <li>Return the wrapper function.</li>
 </ol>
-
-# Example Usage
-
-```js
-const obj = {
-    name: "Bob",
-    age: 42,
-
-    contactInfo: {
-        email: "foo@gmail.com",
-        age: 42,
-    },
-
-    pets: [
-        { name: "Jack", age: 10 },
-        new Map([
-            [
-                13,
-                {
-                    name: "Alice",
-                    age: 12,
-                    pet: { name: "Doggo", age: 42 },
-                },
-            ],
-        ]),
-    ],
-
-    fruits: new Set([{ name: "Hannah", age: 30 }]),
-}
-
-// Wrap the `del` function with `logStack` for stack tracing
-del = logStack(del)
-
-// Remove the "age" key from the object and its nested properties
-const result = omitDeep(obj, ["age"])
-
-console.dir(result, { depth: null })
-```
-
-### The output will display the modified object with the specified keys removed, and the stack trace log showing the function calls and their arguments.
